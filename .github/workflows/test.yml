@@ -6,7 +6,6 @@ concurrency:
   cancel-in-progress: true
 env:
   DOCKER_BUILDKIT: 1
-  IMAGE_TAG: ${{ hashFiles('Dockerfile') }}
 
 jobs:
   build:
@@ -27,6 +26,11 @@ jobs:
 
       - uses: aws-actions/amazon-ecr-login@v1
         id: login-ecr
+
+      - name: Calculate Docker Image Tag
+        run: echo "IMAGE_TAG=$(echo $(hashFiles('Dockerfile')))" >> $GITHUB_ENV
+
+      - run: echo $IMAGE_TAG
 
       - name: build and push docker image to ecr
         env:
