@@ -46,7 +46,7 @@ jobs:
             echo "Image pulled successfully!"
           else
             echo "Image not found, need to build."
-            echo "{BUILD_NEEDED}={true}" >> "$GITHUB_OUTPUT"
+            echo "BUILD_NEEDED=true" >> "$GITHUB_OUTPUT"
           fi
 
       - run: echo ${{ steps.pull.outputs.BUILD_NEEDED }}
