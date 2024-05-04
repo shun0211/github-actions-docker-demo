@@ -1,4 +1,3 @@
 FROM alpine:latest
-
-# Run the command
+RUN mkdir /app
 CMD ["echo", "Hello, Docker!"]
