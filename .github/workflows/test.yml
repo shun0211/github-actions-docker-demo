@@ -46,7 +46,7 @@ jobs:
             echo "Image pulled successfully!"
           else
             echo "Image not found, need to build."
-            echo "::set-output name=BUILD_NEEDED::true"
+            echo "{BUILD_NEEDED}={true}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         if: steps.pull.outputs.BUILD_NEEDED == 'true'
