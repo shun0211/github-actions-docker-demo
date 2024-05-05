@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    name: build / Docker
+    name: build-and-push / Docker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,3 +49,34 @@ jobs:
         run: |
           docker build . --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+  exec:
+    name: exec / Docker
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cURL Headers
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-1
+
+      - uses: aws-actions/amazon-ecr-login@v1
+        id: login-ecr
+
+      - name: Set env variables
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ hashFiles('Dockerfile') }}
+        run: |
+          echo "REGISTRY=${{ env.REGISTRY }}" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG=${{ env.IMAGE_TAG }}" >> "$GITHUB_ENV"
+
+      - name: Run Docker Compose up
+        run: docker-compose up
